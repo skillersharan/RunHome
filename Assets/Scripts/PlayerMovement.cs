@@ -1,45 +1,72 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class PlayerMovement : MonoBehaviour {
-	public float moveSpeed;
-	public float maxSpeed=5f;
+public class PlayerMovement : MonoBehaviour
+{
+
+	public float turnSmoothing = 15f;   
+	public float speedDampTime = 0.1f;  
 	private Vector3 spawn;
-	private Vector3 input;
-	public Vector3 tilt;
-	public float speed;
-	private Vector3 previousPosition;
-	public GameObject deathParticle;
-	public Camera cam;
-	// Use this for initialization
-	void Start () {
-		spawn = transform.position;
-		previousPosition = transform.position;
-	}
-	
-	// Update is called once per frame
-	void Update () {
-		tilt.z = Input.acceleration.y;
-		tilt.x = Input.acceleration.x;
-		
-		rigidbody.AddForce(tilt * speed * Time.deltaTime);
-		if (transform.position.y < 0) {
-			Die ();
-				}
-
-	}
+	private Animator anim;              
 
 	
-	void LateUpdate()
+	
+	void Awake ()
 	{
-		Vector3 movement = transform.position - previousPosition;
-		
-		movement =new Vector3(movement.z,0,  -movement.x);
-				
-		previousPosition = transform.position;	
-		
+
+		anim = GetComponent<Animator>();
+		spawn = transform.position;	
+
 	}
 
+	void FixedUpdate ()
+	{
+
+		/*float h = Input.GetAxis("Horizontal");
+		float v = Input.GetAxis("Vertical");*/
+
+		float h = Input.acceleration.x;
+		float v = Input.acceleration.y;
+
+		
+		MovementManagement(h, v);
+
+		if (transform.position.y < -2) {
+			Die ();
+		}
+	}
+	
+
+	
+	
+	void MovementManagement (float horizontal, float vertical)
+	{
+
+		if(Mathf.Abs(horizontal) > 0.1f || Mathf.Abs(vertical) > 0.1f)
+		{
+			Rotating(horizontal, vertical);
+			anim.SetFloat("Speed", 5.5f, speedDampTime, Time.deltaTime);
+		}
+		else
+
+			anim.SetFloat("Speed", 0);
+	}
+	
+	
+	void Rotating (float horizontal, float vertical)
+	{
+
+		Vector3 targetDirection = new Vector3(horizontal, 0f, vertical);
+		
+
+		Quaternion targetRotation = Quaternion.LookRotation(targetDirection, Vector3.up);
+		
+
+		Quaternion newRotation = Quaternion.Lerp(rigidbody.rotation, targetRotation, turnSmoothing * Time.deltaTime);
+		
+
+		rigidbody.MoveRotation(newRotation);
+	}
 	void OnCollisionEnter(Collision other){
 		if (other.gameObject.tag == "Enemy") {
 			Die();
@@ -51,19 +78,13 @@ public class PlayerMovement : MonoBehaviour {
 			GameManager.CompleteLevel();
 				
 		}
-		if (other.transform.tag == "Cam") {
-			cam.fieldOfView-=25;
 		}
-		}
-	void OnTriggerExit(Collider other){
-		if (other.transform.tag == "Cam") {
-			cam.fieldOfView+=25;
-		}
-		}
+
+
 
 
 	void Die(){
-		Instantiate(deathParticle,transform.position,Quaternion.identity);
 		transform.position=spawn;
 	}
+
 }
