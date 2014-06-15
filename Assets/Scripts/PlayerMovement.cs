@@ -1,90 +1,64 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class PlayerMovement : MonoBehaviour
-{
+public class PlayerMovement : MonoBehaviour {
 
-	public float turnSmoothing = 15f;   
-	public float speedDampTime = 0.1f;  
+	public float maxSpeed=1000f;
 	private Vector3 spawn;
-	private Animator anim;              
-
-	
-	
-	void Awake ()
-	{
-
-		anim = GetComponent<Animator>();
-		spawn = transform.position;	
-
+	private Vector3 input;
+	public Vector3 tilt;
+	public float speed;
+	// Use this for initialization
+	void Start () {
+		spawn = transform.position;
+		//previousPosition = transform.position;
 	}
-
-	void FixedUpdate ()
-	{
-
-		float h = Input.GetAxis("Horizontal");
-		float v = Input.GetAxis("Vertical");
-
-		/*float h = Input.acceleration.x;
-		float v = Input.acceleration.y;*/
-
+	
+	// Update is called once per frame
+	void Update () {
+		tilt.z = Input.acceleration.y;
+		tilt.x = Input.acceleration.x;
 		
-		MovementManagement(h, v);
+		rigidbody.AddForce(tilt * speed * Time.deltaTime);
 
-		if (transform.position.y < -2) {
+		/*input = new Vector3 (Input.GetAxis ("Horizontal"), 0, Input.GetAxis ("Vertical"));
+		if(rigidbody.velocity.magnitude<maxSpeed)
+			rigidbody.AddForce (input*speed*Time.deltaTime);*/
+
+
+		if (transform.position.y < 0) {
 			Die ();
 		}
+		
 	}
 	
-
 	
-	
-	void MovementManagement (float horizontal, float vertical)
+	/*void LateUpdate()
 	{
-
-		if(Mathf.Abs(horizontal) > 0.1f || Mathf.Abs(vertical) > 0.1f)
-		{
-			Rotating(horizontal, vertical);
-			anim.SetFloat("Speed", Mathf.Max (Mathf.Abs(vertical),Mathf.Abs(horizontal)), speedDampTime, Time.deltaTime);
-		}
-		else
-
-			anim.SetFloat("Speed", 0);
-	}
+		Vector3 movement = transform.position - previousPosition;
+		
+		movement =new Vector3(movement.z,0,  -movement.x);
+		
+		previousPosition = transform.position;	
+		
+	}*/
 	
-	
-	void Rotating (float horizontal, float vertical)
-	{
-
-		Vector3 targetDirection = new Vector3(horizontal, 0f, vertical);
-		
-
-		Quaternion targetRotation = Quaternion.LookRotation(targetDirection, Vector3.up);
-		
-
-		Quaternion newRotation = Quaternion.Lerp(rigidbody.rotation, targetRotation, turnSmoothing * Time.deltaTime);
-		
-
-		rigidbody.MoveRotation(newRotation);
-	}
 	void OnCollisionEnter(Collision other){
 		if (other.gameObject.tag == "Enemy") {
 			Die();
 		}
 	}
-
+	
 	void OnTriggerEnter(Collider other){
 		if (other.transform.tag == "Goal") {
 			GameManager.CompleteLevel();
-				
+			
 		}
-		}
+	
+	}
 
-
-
-
+	
 	void Die(){
 		transform.position=spawn;
 	}
-
 }
