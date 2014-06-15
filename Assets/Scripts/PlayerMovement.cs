@@ -45,7 +45,7 @@ public class PlayerMovement : MonoBehaviour
 		if(Mathf.Abs(horizontal) > 0.1f || Mathf.Abs(vertical) > 0.1f)
 		{
 			Rotating(horizontal, vertical);
-			anim.SetFloat("Speed", 5.5f, speedDampTime, Time.deltaTime);
+			anim.SetFloat("Speed", Mathf.Max (Mathf.Abs(vertical),Mathf.Abs(horizontal)), speedDampTime, Time.deltaTime);
 		}
 		else
 
