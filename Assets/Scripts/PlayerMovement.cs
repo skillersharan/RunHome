@@ -8,6 +8,7 @@ public class PlayerMovement : MonoBehaviour {
 	private Vector3 input;
 	public Vector3 tilt;
 	public float speed;
+	public GameObject particle;
 	// Use this for initialization
 	void Start () {
 		spawn = transform.position;
@@ -16,14 +17,14 @@ public class PlayerMovement : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-		tilt.z = Input.acceleration.y;
+		/*tilt.z = Input.acceleration.y;
 		tilt.x = Input.acceleration.x;
 		
-		rigidbody.AddForce(tilt * speed * Time.deltaTime);
+		rigidbody.AddForce(tilt * speed * Time.deltaTime);*/
 
-		/*input = new Vector3 (Input.GetAxis ("Horizontal"), 0, Input.GetAxis ("Vertical"));
+		input = new Vector3 (Input.GetAxis ("Horizontal"), 0, Input.GetAxis ("Vertical"));
 		if(rigidbody.velocity.magnitude<maxSpeed)
-			rigidbody.AddForce (input*speed*Time.deltaTime);*/
+			rigidbody.AddForce (input*speed*Time.deltaTime);
 
 
 		if (transform.position.y < 0) {
@@ -59,6 +60,7 @@ public class PlayerMovement : MonoBehaviour {
 
 	
 	void Die(){
-		transform.position=spawn;
+				transform.position=spawn;
+		Instantiate (particle, transform.position, Quaternion.identity);
 	}
 }
